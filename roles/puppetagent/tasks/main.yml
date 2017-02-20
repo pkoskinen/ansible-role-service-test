@@ -1,0 +1,16 @@
+---
+
+- name: Stat Puppet repository
+  stat: path=/etc/yum.repos.d/puppetlabs-pc1.repo
+  register: puppetrpm
+
+- name: Enable Puppet repository
+  command: rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+  when: puppetrpm.stat.exists == False
+
+- name: Install Puppet agent
+  yum: name="puppet-agent" state=latest
+
+- name: Puppetmaster to hosts file
+  lineinfile: name=/etc/hosts line='192.168.10.10 puppet puppetmaster.local'
+
