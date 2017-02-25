@@ -14,3 +14,12 @@
 - name: Puppetmaster to hosts file
   lineinfile: name=/etc/hosts line='192.168.10.10 puppet puppetmaster.local'
 
+- name: Configure Puppet
+  lineinfile: name=/etc/puppetlabs/puppet/puppet.conf line="{{ item }}"
+  with_items:
+    - "[main]"
+    - "certname = service.local"
+    - "environment = development"
+
+
+ 
