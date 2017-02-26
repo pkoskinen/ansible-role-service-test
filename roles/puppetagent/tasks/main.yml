@@ -17,16 +17,13 @@
 - name: Start Firewalld
   service: name=firewalld enabled=yes state=started
 
-- name: External zone to eth1
-  command: firewall-cmd --zone=serviceExternal --change-interface=eth1
-
 - name: Puppetmaster to hosts file
   lineinfile: name=/etc/hosts line='192.168.10.10 puppet puppetmaster.local'
 
 - name: Configure Puppet
   lineinfile: name=/etc/puppetlabs/puppet/puppet.conf line="{{ item }}"
   with_items:
-    - "[main]"
+    - "[agent]"
     - "certname = service.local"
     - "environment = development"
 
