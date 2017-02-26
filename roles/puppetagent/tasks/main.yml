@@ -8,8 +8,17 @@
   command: rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
   when: puppetrpm.stat.exists == False
 
-- name: Install Puppet agent
-  yum: name="puppet-agent" state=latest
+- name: Install Puppet agent and firewalld
+  yum: name={{ item }} state=latest
+  with_items:
+    - puppet-agent
+    - firewalld
+
+- name: Start Firewalld
+  service: name=firewalld enabled=yes state=started
+
+- name: External zone to eth1
+  command: firewall-cmd --zone=serviceExternal --change-interface=eth1
 
 - name: Puppetmaster to hosts file
   lineinfile: name=/etc/hosts line='192.168.10.10 puppet puppetmaster.local'
