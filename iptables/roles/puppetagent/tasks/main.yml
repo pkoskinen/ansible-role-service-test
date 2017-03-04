@@ -1,0 +1,32 @@
+---
+
+- name: Stat Puppet repository
+  stat: path=/etc/yum.repos.d/puppetlabs-pc1.repo
+  register: puppetrpm
+
+- name: Enable Puppet repository
+  command: rpm -Uvh https://yum.puppetlabs.com/puppetlabs-release-pc1-el-7.noarch.rpm
+  when: puppetrpm.stat.exists == False
+
+- name: Nuke firewalld
+  command: systemctl mask firewalld
+
+- name: Install Puppet agent and iptables
+  yum: name={{ item }} state=latest
+  with_items:
+    - puppet-agent
+    - iptables-services
+
+- name: Start iptables
+  service: name=iptables enabled=yes state=started
+
+- name: Puppetmaster to hosts file
+  lineinfile: name=/etc/hosts line='192.168.10.10 puppet puppetmaster.local'
+
+- name: Configure Puppet
+  lineinfile: name=/etc/puppetlabs/puppet/puppet.conf line="{{ item }}"
+  with_items:
+    - "[agent]"
+    - "certname = service2.local"
+    - "environment = development"
+
